@@ -1,5 +1,3 @@
-const ebtProvidersBaseUrl = "https://www.easyfoodstamps.com/"
-
 function processProviderData(data)
 {
     const filters = {
@@ -9,7 +7,13 @@ function processProviderData(data)
         filters[filter] = L.layerGroup();
     });
     data.stores.forEach(function (store, index) {
-        var marker = L.marker([store.latitude, store.longitude]);
+        const markerOpts = {};
+        if (store.icon) {
+            markerOpts.icon = L.icon( {
+                iconUrl: store.icon
+            });
+        }
+        const marker = L.marker([store.latitude, store.longitude], markerOpts);
         marker.bindPopup(store.store_name);
         filters[store.type || "unknown"].addLayer(marker);
     });
@@ -29,6 +33,7 @@ function onProvidersReceived(response)
 
 function fetchProviders(latitude, longitude)
 {
+    const ebtProvidersBaseUrl = "https://www.easyfoodstamps.com/"
     const url = ebtProvidersBaseUrl + "stores?latitude=" + latitude +
         "&longitude=" + longitude
     fetch(url)
