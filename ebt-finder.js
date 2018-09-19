@@ -1,10 +1,23 @@
+const filters = {
+    Unknown: L.layerGroup()
+};
+const layerControl = L.control.layers(null, filters, { collapsed: false })
+
 function processProviderData(data)
 {
-    const filters = {
-        unknown: L.layerGroup()
-    };
+    // for simplicity in case we want to display a list of results,
+    // clear out all markers
+    Object.values(filters).forEach(function (filter, index) {
+        filter.clearLayers();
+    });
     data.filters.forEach(function (filter, index) {
-        filters[filter] = L.layerGroup();
+        if (!(filter in filters))
+        {
+            filters[filter] = L.layerGroup();
+            filters[filter].addTo(ebtResourcesMap);
+            layerControl.addOverlay(filters[filter],
+                                    filter.charAt(0).toUpperCase() + filter.slice(1));
+        }
     });
     data.stores.forEach(function (store, index) {
         const markerOpts = {};
@@ -15,10 +28,7 @@ function processProviderData(data)
         }
         const marker = L.marker([store.latitude, store.longitude], markerOpts);
         marker.bindPopup(store.store_name);
-        filters[store.type || "unknown"].addLayer(marker);
-    });
-    Object.values(filters).forEach(function (filter, index) {
-        filter.addTo(ebtResourcesMap);
+        filters[store.type || "Unknown"].addLayer(marker);
     });
 }
 
@@ -55,7 +65,7 @@ function onLocationChange(e)
     fetchProviders(latLng.lat, latLng.lng);
 }
 
-var ebtResourcesMap = L.map('mapid').setView([51.505, -0.09], 13);
+const ebtResourcesMap = L.map('mapid').setView([51.505, -0.09], 13);
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
@@ -63,4 +73,9 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     accessToken: 'pk.eyJ1IjoicmViZnJhbmsiLCJhIjoiY2ptOGIzcGZtMGs5cjN3bGt5dTM1bW1lbyJ9.-x71lERJRTdscGneZMFtUg'
 }).addTo(ebtResourcesMap);
 ebtResourcesMap.on('moveend', onLocationChange)
+Object.values(filters).forEach(function (filter, index) {
+    filter.addTo(ebtResourcesMap);
+});
+layerControl.addTo(ebtResourcesMap)
 navigator.geolocation.getCurrentPosition(onGotCurrentPosition)
+
