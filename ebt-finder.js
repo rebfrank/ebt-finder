@@ -6,6 +6,13 @@ function EbtFinder(divId)
 
 EbtFinder.prototype.init = function()
 {
+    this.provider = new GeoSearch.OpenStreetMapProvider();
+    this.searchControl = new GeoSearch.GeoSearchControl({
+        provider: this.provider,
+        style: 'button'
+    });
+    this.map.addControl(this.searchControl);
+
     this.filters = {
         store: L.layerGroup()
     };
