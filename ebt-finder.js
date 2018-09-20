@@ -1,6 +1,7 @@
 function EbtFinder(divId)
 {
     this.divId = divId;
+    this.map = L.map(this.divId).setView([51.505, -0.09], 13);
 }
 
 EbtFinder.prototype.init = function()
@@ -9,7 +10,6 @@ EbtFinder.prototype.init = function()
         Unknown: L.layerGroup()
     };
     this.layerControl = L.control.layers(null, this.filters, { collapsed: false })
-    this.map = L.map(this.divId).setView([51.505, -0.09], 13);
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -60,9 +60,8 @@ EbtFinder.prototype.onProvidersReceived = function(response)
 {
     if (response.status !== 200) {
         throw new Error('Problem with fetch. Status: ' + response.status);
-        return;
     }
-    response.json().then(this.processProviderData.bind(this));
+    return response.json().then(this.processProviderData.bind(this));
 }
 
 EbtFinder.prototype.fetchProviders = function(latitude, longitude)
@@ -70,7 +69,7 @@ EbtFinder.prototype.fetchProviders = function(latitude, longitude)
     const ebtProvidersBaseUrl = "https://www.easyfoodstamps.com/"
     const url = ebtProvidersBaseUrl + "stores?latitude=" + latitude +
         "&longitude=" + longitude
-    fetch(url)
+    return fetch(url)
         .then(this.onProvidersReceived.bind(this))
         .catch(function(err) {
             console.log('Fetch error :-S', err);
@@ -86,7 +85,7 @@ EbtFinder.prototype.onGotCurrentPosition = function(position)
 EbtFinder.prototype.onLocationChange = function(e) 
 {
     var latLng = e.target.getCenter();
-    this.fetchProviders(latLng.lat, latLng.lng);
+    return this.fetchProviders(latLng.lat, latLng.lng);
 }
 
 
