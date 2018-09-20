@@ -6,10 +6,15 @@ function EbtFinder(divId)
 
 EbtFinder.prototype.init = function()
 {
+    this.map.zoomControl.setPosition('bottomright');
+
     this.provider = new GeoSearch.OpenStreetMapProvider();
     this.searchControl = new GeoSearch.GeoSearchControl({
         provider: this.provider,
-        style: 'button'
+        style: 'button',
+        retainZoomLevel: true,
+        autoClose: true,
+        keepResult: true
     });
     this.map.addControl(this.searchControl);
 
