@@ -1,0 +1,25 @@
+{
+  "name": "ebt-finder",
+  "version": "0.1.0",
+  "description": "A map for EBT card-holders to locate nearby resources",
+  "main": "ebt-finder.js",
+  "dependencies": {
+    "leaflet": "~1.3.4"
+},
+  "devDependencies": {
+    "jest": "^23.6.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rebfrank/ebt-finder.git"
+  },
+  "author": "Rebecca Frank",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rebfrank/ebt-finder/issues"
+  },
+  "homepage": "https://github.com/rebfrank/ebt-finder#readme"
+}
