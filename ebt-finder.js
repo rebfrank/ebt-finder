@@ -7,7 +7,7 @@ function EbtFinder(divId)
 EbtFinder.prototype.init = function()
 {
     this.filters = {
-        Unknown: L.layerGroup()
+        store: L.layerGroup()
     };
     this.layerControl = L.control.layers(null, this.filters, { collapsed: false })
 
@@ -27,6 +27,19 @@ EbtFinder.prototype.init = function()
     }
 }
 
+EbtFinder.prototype.processProvider = function(provider)
+{
+    // Assumption: all items without a "type" and/or "icon" are stores
+    const markerOpts = {
+        icon: L.icon( {
+            iconUrl: provider.icon || "store-icon.png"
+        })
+    };
+    const marker = L.marker([provider.latitude, provider.longitude], markerOpts);
+    marker.bindPopup(provider.store_name);
+    this.filters[provider.type || "store"].addLayer(marker);
+}
+
 EbtFinder.prototype.processProviderData = function(data)
 {
     // for simplicity in case we want to display a list of results,
@@ -43,17 +56,8 @@ EbtFinder.prototype.processProviderData = function(data)
                                     filter.charAt(0).toUpperCase() + filter.slice(1));
         }
     }.bind(this));
-    data.stores.forEach(function (store, index) {
-        const markerOpts = {};
-        if (store.icon) {
-            markerOpts.icon = L.icon( {
-                iconUrl: store.icon
-            });
-        }
-        const marker = L.marker([store.latitude, store.longitude], markerOpts);
-        marker.bindPopup(store.store_name);
-        this.filters[store.type || "Unknown"].addLayer(marker);
-    }.bind(this));
+    data.stores.forEach(this.processProvider.bind(this));
+    data.other.forEach(this.processProvider.bind(this));
 }
 
 EbtFinder.prototype.onProvidersReceived = function(response)

@@ -28,7 +28,8 @@ const mockData = {
                  zip4: "2149",
                  zip5: "11385",
                  icon: "icon.png"
-             }]
+             }],
+    other: []
 };
 
 const mockData2 = { 
@@ -56,7 +57,8 @@ const mockData2 = {
                  store_name: "Test Store #2",
                  zip4: "2149",
                  zip5: "11385"
-             }]
+             }],
+    other: []
 };
 
 const mockResponse = (status, statusText, data) => {
@@ -109,8 +111,7 @@ test('move the map fetches new providers', () => {
 test('processProviderData inits filter list', () => {
     e.init();
     e.processProviderData(mockData);
-    expect(Object.keys(e.filters).length).toBe(3);
-    expect("Unknown" in e.filters);
+    expect(Object.keys(e.filters).length).toBe(2);
     expect("store" in e.filters);
     expect("market" in e.filters);
 });
@@ -119,8 +120,7 @@ test('processProviderData does not delete filters', () => {
     e.init();
     e.filters["OtherFilter"] = L.layerGroup();
     e.processProviderData(mockData);
-    expect(Object.keys(e.filters).length).toBe(4);
-    expect("Unknown" in e.filters);
+    expect(Object.keys(e.filters).length).toBe(3);
     expect("store" in e.filters);
     expect("market" in e.filters);
     expect("OtherFilter" in e.filters);
@@ -130,8 +130,7 @@ test('processProviderData does not duplicate filters', () => {
     e.init();
     e.processProviderData(mockData);
     e.processProviderData(mockData2);
-    expect(Object.keys(e.filters).length).toBe(3);
-    expect("Unknown" in e.filters);
+    expect(Object.keys(e.filters).length).toBe(2);
     expect("store" in e.filters);
     expect("market" in e.filters);
 });
@@ -139,11 +138,11 @@ test('processProviderData does not duplicate filters', () => {
 test('processProviderData clears all markers', () => {
     e.init();
     e.processProviderData(mockData);
-    const oldMarkers = e.filters["Unknown"].getLayers();
+    const oldMarkers = e.filters["store"].getLayers();
     expect(oldMarkers.length).toBe(2);
     e.processProviderData(mockData2);
     oldMarkers.forEach(marker => {
-        expect(e.filters["Unknown"].hasLayer(marker)).toBeFalsy();
+        expect(e.filters["store"].hasLayer(marker)).toBeFalsy();
     });
 });
 
@@ -158,7 +157,7 @@ test('processProviderData makes new filters visible', () => {
 test('processProviderData adds provider', () => {
     e.init();
     e.processProviderData(mockData);
-    const markers = e.filters["Unknown"].getLayers();
+    const markers = e.filters["store"].getLayers();
     expect(markers.length).toBe(2);
     var expectedCoords0 = { 
         lat: mockData.stores[0].latitude,
@@ -187,7 +186,13 @@ test('processProviderData adds provider', () => {
 test('grabs icon from provided url', () => {
     e.init();
     e.processProviderData(mockData);
-    expect(e.filters["Unknown"].getLayers()[0].options.icon.options.iconUrl).toEqual(mockData.stores[0].icon);
+    expect(e.filters["store"].getLayers()[0].options.icon.options.iconUrl).toEqual(mockData.stores[0].icon);
+});
+
+test('grabs icon from default url', () => {
+    e.init();
+    e.processProviderData(mockData2);
+    expect(e.filters["store"].getLayers()[0].options.icon.options.iconUrl).toEqual("store-icon.png");
 });
 
 // TODO: test processProviderData doesn't modify user settings on past filters
