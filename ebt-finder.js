@@ -8,6 +8,11 @@ EbtFinder.prototype.init = function()
 {
     this.map.zoomControl.setPosition('bottomright');
 
+    this.locateControl = L.control.locate( {
+        position: 'bottomright',
+        keepCurrentZoomLevel: true
+    }).addTo(this.map);
+
     this.provider = new GeoSearch.OpenStreetMapProvider();
     this.searchControl = new GeoSearch.GeoSearchControl({
         provider: this.provider,
@@ -34,9 +39,6 @@ EbtFinder.prototype.init = function()
         this.filters[filter].addTo(this.map);
     }.bind(this));
     this.layerControl.addTo(this.map)
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(this.onGotCurrentPosition.bind(this));
-    }
 }
 
 EbtFinder.prototype.processProvider = function(provider)

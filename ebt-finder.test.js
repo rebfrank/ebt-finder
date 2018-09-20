@@ -1,6 +1,3 @@
-const L = require('leaflet');
-const EbtFinder = require('./ebt-finder');
-
 const mockData = { 
     filters: ["store", "market"],
     stores: [{
@@ -82,7 +79,11 @@ const mockEvent = {
 var e;
 
 beforeEach(() => {
-    jest.mock(navigator.geolocation);
+    L = require('leaflet');
+    GeoSearch = require('leaflet-geosearch');
+    C = require('leaflet.locatecontrol');
+    EbtFinder = require('./ebt-finder');
+
     document.body.innerHTML = '<div id="mapId"></div>';
     e = new EbtFinder('mapId');
 });
