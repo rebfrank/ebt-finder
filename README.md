@@ -5,7 +5,7 @@ A map for EBT card-holders to locate nearby resources. Check it out [here][1].
 
 Use `npm install` from within the package directory to install dependencies for running tests. Then use `npm test`.
 
-The main JavaScript entry-point is ebt-finder.js, which exports the EbtFinder class (currently used for running tests). The site simply adds it to the page using a <script> tag.
+The main JavaScript entry-point is `ebt-finder.js`, which exports the EbtFinder class (currently used for running tests). The site simply adds it to the page using a `<script>` tag.
   
 The app uses [Leaflet][3] for drawing the map along with the [Leaflet.GeoSearch][4] and [Leaflet.Locate][5] plugins for geosearch and geolocation, respectively.
 
