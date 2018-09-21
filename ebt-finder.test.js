@@ -58,6 +58,35 @@ const mockData2 = {
     other: []
 };
 
+const mockData3 = { 
+    filters: ["store", "market"],
+    other: [{
+                 address: "221 Saint Nicholas Ave", 
+                 "address line #2": "", 
+                 city: "Brooklyn", 
+                 county: "KINGS", 
+                 latitude: 40.71, 
+                 longitude: -73.92, 
+                 state: "NY", 
+                 store_name: "Test Store #3", 
+                 zip4: "4840", 
+                 zip5: "11237",
+                 type: "market"
+             }, 
+             {
+                 address: "251 Saint Nicholas Ave", 
+                 "address line #2": "",
+                 city: "Ridgewood", 
+                 county: "QUEENS", 
+                 latitude: "40.70", 
+                 longitude: "-73.91", 
+                 state: "NY", 
+                 store_name: "Test Store #4",
+                 zip4: "2149",
+                 zip5: "11385"
+             }],
+    stores: []
+};
 const mockResponse = (status, statusText, data) => {
       return {
               status: status,
@@ -196,6 +225,32 @@ test('grabs icon from default url', () => {
     expect(e.filters["store"].getLayers()[0].options.icon.options.iconUrl).toEqual("store-icon.png");
 });
 
-// TODO: test processProviderData doesn't modify user settings on past filters
-// waiting on this one because I might move the layerControl out of leaflet to
-// make it less ugly
+test('user friendly names gets correct name for known translations', () => {
+    expect(e.getUserFriendlyFilterName("store")).toBe("Stores");
+    expect(e.getUserFriendlyFilterName("market")).toBe("Markets");
+});
+
+test('user friendly names handles unexpected name', () => {
+    expect(e.getUserFriendlyFilterName("test")).toBe("Test");
+});
+
+test('processProviderData does not modify user settings on past filters', () =>
+{
+    e.init();
+    e.processProviderData(mockData);
+    expect(e.map.hasLayer(e.filters["store"])).toBeTruthy();
+    e.map.removeLayer(e.filters["store"]);
+    e.processProviderData(mockData2);
+    expect(e.map.hasLayer(e.filters["store"])).toBeFalsy();
+});
+
+test('processProviderData handles missing store type', () =>
+{
+    e.init();
+    e.processProviderData(mockData3);
+    debugger;
+    expect(e.filters["store"].getLayers().length).toBe(1);
+    expect(e.filters["market"].getLayers().length).toBe(1);
+    expect(Object.keys(e.filters).length).toBe(2);
+});
+

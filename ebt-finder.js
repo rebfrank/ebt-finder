@@ -1,7 +1,7 @@
 function EbtFinder(divId)
 {
     this.divId = divId;
-    this.map = L.map(this.divId).setView([51.505, -0.09], 13);
+    this.map = L.map(this.divId);
 }
 
 EbtFinder.prototype.init = function()
@@ -23,10 +23,8 @@ EbtFinder.prototype.init = function()
     });
     this.map.addControl(this.searchControl);
 
-    this.filters = {
-        store: L.layerGroup()
-    };
-    this.layerControl = L.control.layers(null, this.filters, { collapsed: false })
+    this.filters = {};
+    this.layerControl = L.control.layers(null, null, { collapsed: false })
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -39,6 +37,20 @@ EbtFinder.prototype.init = function()
         this.filters[filter].addTo(this.map);
     }.bind(this));
     this.layerControl.addTo(this.map)
+
+    this.map.setView([40.70851,-73.90896], 13);
+}
+
+EbtFinder.prototype.getUserFriendlyFilterName = function(rawFilterName)
+{
+    const filterNames = {
+        store: "Stores",
+        market: "Markets",
+        foodbank: "Food Banks",
+        snapoffice: "Snap Offices",
+        wicoffice: "WIC Offices"
+    };
+    return filterNames[rawFilterName] || rawFilterName.charAt(0).toUpperCase() + rawFilterName.slice(1);
 }
 
 EbtFinder.prototype.processProvider = function(provider)
@@ -67,7 +79,7 @@ EbtFinder.prototype.processProviderData = function(data)
             this.filters[filter] = L.layerGroup();
             this.filters[filter].addTo(this.map);
             this.layerControl.addOverlay(this.filters[filter],
-                                    filter.charAt(0).toUpperCase() + filter.slice(1));
+                                    this.getUserFriendlyFilterName(filter));
         }
     }.bind(this));
     data.stores.forEach(this.processProvider.bind(this));
