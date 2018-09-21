@@ -87,31 +87,38 @@ const mockData3 = {
              }],
     stores: []
 };
+
 const mockResponse = (status, statusText, data) => {
-      return {
+      const resp = {
               status: status,
               statusText: statusText,
-              json: () => { return Promise.resolve(data) }
+              json: () => { return Promise.resolve(data) },
+              ok: false
       };
+      if (status >= 200 && status <= 299) {
+          resp.ok = true;
+      };
+      return resp;
 };
 
 const mockCenter = {
     lat: 40.6,
     lng: -74.2
 };
+
 const mockEvent = {
     target: {
         getCenter: () => { return mockCenter; }
     }
 };
 
-var e;
 
 beforeEach(() => {
     L = require('leaflet');
     GeoSearch = require('leaflet-geosearch');
     C = require('leaflet.locatecontrol');
     EbtFinder = require('./ebt-finder');
+    alert = jest.fn()
 
     document.body.innerHTML = '<div id="mapId"></div>';
     e = new EbtFinder('mapId');
@@ -136,6 +143,55 @@ test('move the map fetches new providers', () => {
     expect(moveendListeners.length).toBe(1);
     return moveendListeners[0][1](mockEvent)
         .then(() => { expect(e.processProviderData).toBeCalledWith(mockData) });
+});
+
+test('generates alert when provider fetch returns error', () => {
+    // set up mocks
+    jest.spyOn(e.map, 'on');
+    global.fetch = jest.fn().mockImplementation(() => {
+        return Promise.resolve(mockResponse(400, "Test error status", null))
+    });
+    jest.spyOn(e, 'processProviderData');
+
+    // mock out setView that gets called during init so it doesn't fetch
+    // providers
+    e.map.setView = jest.fn().mockImplementation((center, zoom) => { 
+        return;
+    });
+
+    // run init
+    e.init();
+
+    // find the call to "on" for "moveend"
+    var moveendListeners = e.map.on.mock.calls.filter(call => {
+        return call[0] == 'moveend';    
+    });
+    expect(moveendListeners.length).toBe(1);
+    return moveendListeners[0][1](mockEvent)
+        .then(() => { 
+            expect(e.processProviderData).toHaveBeenCalledTimes(0);
+            expect(alert).toHaveBeenCalledTimes(1);
+        });
+});
+
+test('generates alert when provider fetch returns error during init', (done) => {
+    // set up mocks
+    jest.spyOn(e.map, 'on');
+    jest.spyOn(e, 'processProviderData');
+    e.map.setView = jest.fn().mockImplementation((center, zoom) => {
+        return e.onLocationChange(mockEvent)
+            .then(() => {
+                expect(e.processProviderData).toHaveBeenCalledTimes(0);
+                expect(alert).toHaveBeenCalledTimes(1);
+                done();
+            });
+    });
+    global.fetch = jest.fn().mockImplementation((url) => {
+        return Promise.resolve(mockResponse(400, "Test error status", null))
+    });
+
+    // run init, which fetches providers
+    e.init();
 });
 
 test('processProviderData inits filter list', () => {
@@ -248,7 +304,6 @@ test('processProviderData handles missing store type', () =>
 {
     e.init();
     e.processProviderData(mockData3);
-    debugger;
     expect(e.filters["store"].getLayers().length).toBe(1);
     expect(e.filters["market"].getLayers().length).toBe(1);
     expect(Object.keys(e.filters).length).toBe(2);

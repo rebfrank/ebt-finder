@@ -86,36 +86,26 @@ EbtFinder.prototype.processProviderData = function(data)
     data.other.forEach(this.processProvider.bind(this));
 }
 
-EbtFinder.prototype.onProvidersReceived = function(response)
-{
-    if (response.status !== 200) {
-        throw new Error('Problem with fetch. Status: ' + response.status);
-    }
-    return response.json().then(this.processProviderData.bind(this));
-}
-
 EbtFinder.prototype.fetchProviders = function(latitude, longitude)
 {
     const ebtProvidersBaseUrl = "https://www.easyfoodstamps.com/"
     const url = ebtProvidersBaseUrl + "stores?latitude=" + latitude +
         "&longitude=" + longitude
-    return fetch(url)
-        .then(this.onProvidersReceived.bind(this))
-        .catch(function(err) {
-            console.log('Fetch error :-S', err);
-        });
-}
-
-EbtFinder.prototype.onGotCurrentPosition = function(position) 
-{
-    this.map.panTo(L.latLng(position.coords.latitude,
-                          position.coords.longitude))
+    return fetch(url);
 }
 
 EbtFinder.prototype.onLocationChange = function(e) 
 {
     var latLng = e.target.getCenter();
-    return this.fetchProviders(latLng.lat, latLng.lng);
+    return this.fetchProviders(latLng.lat, latLng.lng)
+        .then(function(response) {
+            if (!response.ok) throw new Error('Failed to retrieve providers. Status: ' + response.status);
+            return response.json();
+        })
+        .then(this.processProviderData.bind(this))
+        .catch(function(err) {
+            alert("We're unable to search for providers in your area right now. Please try again.");
+        });
 }
 
 
