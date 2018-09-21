@@ -36,7 +36,7 @@ EbtFinder.prototype.init = function()
     Object.keys(this.filters).map(function (filter, index) {
         this.filters[filter].addTo(this.map);
     }.bind(this));
-    this.layerControl.addTo(this.map)
+    this.layerControl.addTo(this.map);
 
     this.map.setView([40.70851,-73.90896], 13);
 }
@@ -90,9 +90,9 @@ EbtFinder.prototype.processProviderData = function(data)
 
 EbtFinder.prototype.fetchProviders = function(latitude, longitude)
 {
-    const ebtProvidersBaseUrl = "https://www.easyfoodstamps.com/"
+    const ebtProvidersBaseUrl = "https://www.easyfoodstamps.com/";
     const url = ebtProvidersBaseUrl + "stores?latitude=" + latitude +
-        "&longitude=" + longitude
+        "&longitude=" + longitude;
     return fetch(url);
 }
 

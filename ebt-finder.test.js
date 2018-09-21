@@ -309,3 +309,53 @@ test('processProviderData handles missing store type', () =>
     expect(Object.keys(e.filters).length).toBe(2);
 });
 
+test('processProvider without a name', () =>
+{
+    const provider = {
+         address: "Test address", 
+         "address line #2": "",
+         city: "Ridgewood", 
+         county: "QUEENS", 
+         latitude: 40.701839, 
+         longitude: -73.911987, 
+         state: "NY", 
+         zip4: "2149",
+         zip5: "11385",
+    };
+    e.filters = {
+        store: L.layerGroup()
+    };
+    e.processProvider(provider);
+    expect(e.filters["store"].getLayers().length).toBe(1);
+    expect(e.filters["store"].getLayers()[0].getLatLng()).toEqual({ 
+        lat: provider.latitude,
+        lng: provider.longitude
+    });
+    expect(e.filters["store"].getLayers()[0].getPopup().getContent()).toEqual('<h4>Unknown Store</h4><p>Test address</br></p>');
+});
+
+test('processProvider without an address', () =>
+{
+    const provider = {
+         store_name: "Test store name", 
+         city: "Ridgewood", 
+         county: "QUEENS", 
+         latitude: 40.701839, 
+         longitude: -73.911987, 
+         state: "NY", 
+         zip4: "2149",
+         zip5: "11385",
+    };
+    e.filters = {
+        store: L.layerGroup()
+    };
+    e.processProvider(provider);
+    expect(e.filters["store"].getLayers().length).toBe(1);
+    expect(e.filters["store"].getLayers()[0].getLatLng()).toEqual({ 
+        lat: provider.latitude,
+        lng: provider.longitude
+    });
+    expect(e.filters["store"].getLayers()[0].getPopup().getContent()).toEqual('<h4>Test store name</h4><p></br></p>');
+});
+
+
