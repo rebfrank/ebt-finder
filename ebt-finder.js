@@ -44,11 +44,11 @@ EbtFinder.prototype.init = function()
 EbtFinder.prototype.getUserFriendlyFilterName = function(rawFilterName)
 {
     const filterNames = {
-        store: "Stores",
-        market: "Markets",
-        foodbank: "Food Banks",
-        snapoffice: "Snap Offices",
-        wicoffice: "WIC Offices"
+        store: "<img src='img/store-icon.png' width='16' height='16'/> Stores",
+        market: "<img src='img/market-icon.png' width='16' height='16'/> Markets",
+        foodbank: "<img src='img/foodbank-icon.png' width='16' height='16'/> Food Banks",
+        snapoffice: "<img src='img/snapoffice-icon.png' width='16' height='16'/> Snap Offices",
+        wicoffice: "<img src='img/wicoffice-icon.png' width='16' height='16'/> WIC Offices"
     };
     return filterNames[rawFilterName] || rawFilterName.charAt(0).toUpperCase() + rawFilterName.slice(1);
 }
@@ -58,11 +58,13 @@ EbtFinder.prototype.processProvider = function(provider)
     // Assumption: all items without a "type" and/or "icon" are stores
     const markerOpts = {
         icon: L.icon( {
-            iconUrl: provider.icon || "store-icon.png"
+            iconUrl: provider.icon || "img/store-icon.png"
         })
     };
     const marker = L.marker([provider.latitude, provider.longitude], markerOpts);
-    marker.bindPopup(provider.store_name);
+    const popupContent = '<h4>' + (provider.store_name || "Unknown Store") + '</h4><p>' +
+        (provider.address || '') + '</br>' + (provider["address line #2"] || '') + '</p>';
+    marker.bindPopup(popupContent, { offset: [16, 7] });
     this.filters[provider.type || "store"].addLayer(marker);
 }
 

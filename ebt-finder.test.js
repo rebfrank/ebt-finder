@@ -278,12 +278,12 @@ test('grabs icon from provided url', () => {
 test('grabs icon from default url', () => {
     e.init();
     e.processProviderData(mockData2);
-    expect(e.filters["store"].getLayers()[0].options.icon.options.iconUrl).toEqual("store-icon.png");
+    expect(e.filters["store"].getLayers()[0].options.icon.options.iconUrl).toEqual("img/store-icon.png");
 });
 
 test('user friendly names gets correct name for known translations', () => {
-    expect(e.getUserFriendlyFilterName("store")).toBe("Stores");
-    expect(e.getUserFriendlyFilterName("market")).toBe("Markets");
+    expect(e.getUserFriendlyFilterName("store")).toBe("<img src='img/store-icon.png' width='16' height='16'/> Stores");
+    expect(e.getUserFriendlyFilterName("market")).toBe("<img src='img/market-icon.png' width='16' height='16'/> Markets");
 });
 
 test('user friendly names handles unexpected name', () => {
